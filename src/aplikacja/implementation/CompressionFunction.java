@@ -111,7 +111,7 @@ public class CompressionFunction {
 		int[] xoredAll2 = new int[64];
 		for (int i = 0; i < xoredAll.length; i++) {
 			for (int j = 0; j < xoredAll[0].length; j++) {
-				xoredAll2[j + i] = (byte) (0xFF & xoredAll[i][j]);
+				xoredAll2[j * 8 + i] = (byte) (0xFF & xoredAll[i][j]);
 			}
 		}
 
@@ -268,7 +268,7 @@ public class CompressionFunction {
 		tempTab = mi;
 		for (int i = 0; i < 10; i++) {
 			tempTab = addRoundConstantQ(tempTab, i);
-			System.out.println("\nt: " + i  + "\tQ po addRoundConstantQ:\n");
+			System.out.println("\nt: " + i + "\tQ po addRoundConstantQ:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -278,7 +278,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " Q addRoundConstant " + i, tempTab.clone());
 
 			tempTab = subBytes(tempTab);
-			System.out.println("\nt: " + i  + "\tQ po subBytes:\n");
+			System.out.println("\nt: " + i + "\tQ po subBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -288,7 +288,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " Q subBytes " + i, tempTab.clone());
 
 			tempTab = shiftBytesQ(tempTab);
-			System.out.println("\nt: " + i  + "\tQ po shiftBytesQ:\n");
+			System.out.println("\nt: " + i + "\tQ po shiftBytesQ:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -298,7 +298,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " Q shiftBytes " + i, tempTab.clone());
 
 			tempTab = mixBytes(tempTab);
-			System.out.println("\nt: " + i  + "\tQ po mixBytes:\n");
+			System.out.println("\nt: " + i + "\tQ po mixBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -316,7 +316,7 @@ public class CompressionFunction {
 
 		for (int i = 0; i < 10; i++) {
 			tempTab = addRoundConstantP(tempTab, i);
-			System.out.println("\nt: " + i  + "\tP po addRoundConstantP:\n");
+			System.out.println("\nt: " + i + "\tP po addRoundConstantP:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -326,7 +326,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " P addRoundConstantP " + i, tempTab.clone());
 
 			tempTab = subBytes(tempTab);
-			System.out.println("\nt: " + i  + "\tP po subBytes:\n");
+			System.out.println("\nt: " + i + "\tP po subBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -336,7 +336,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " P subBytes " + i, tempTab.clone());
 
 			tempTab = shiftBytesP(tempTab);
-			System.out.println("\nt: " + i  + "\tP po shiftBytesP:\n");
+			System.out.println("\nt: " + i + "\tP po shiftBytesP:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -346,7 +346,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " P shiftBytes " + i, tempTab.clone());
 
 			tempTab = mixBytes(tempTab);
-			System.out.println("\nt: " + i  + "\tpo mixBytes:\n");
+			System.out.println("\nt: " + i + "\tpo mixBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");

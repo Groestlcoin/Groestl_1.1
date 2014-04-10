@@ -51,7 +51,7 @@ public class HashFunction {
 	private String toByteString(int[] blockState) {
 
 		int[][] endState = CompressionFunction.prepareArray(blockState);
-		System.out.println("\npo XORze wszystkich w CompressionFunction:\n");
+		System.out.println("\nHashFunction.toByteString()\n");
 		for (int k = 0; k < 8; k++) {
 			for (int l = 0; l < 8; l++) {
 				System.out.print(String.format("%02X ", endState[k][l] & 0xFF) + " ");
@@ -66,7 +66,7 @@ public class HashFunction {
 			}
 			System.out.println();
 		}
-		int[][] inputState = CompressionFunction.prepareArray(inputArray);
+		int[][] inputState = CompressionFunction.prepareArray(blockState);
 		for (int i = 0; i < endState.length; i++) {
 			for (int j = 0; j < endState[0].length; j++) {
 				endState[i][j] = endState[i][j] ^ inputState[i][j];
