@@ -1,6 +1,5 @@
 package aplikacja.implementation;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,8 +7,11 @@ import aplikacja.gui.NewGui;
 
 public class CompressionFunction {
 
-	private static int[][] pRoundConstant;
-	private int[][] qRoundConstant;
+	private final static int[][] PROUNDCONSTANT = { { 0, 16, 32, 48, 64, 80, 96, 112 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 } };
+	private final static int[][] QROUNDCONSTANT = { { 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 },
+			{ 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 },
+			{ 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 239, 223, 207, 191, 175, 159, 143 } };
 	private int[][] him1;
 	private int[][] mi;
 	private int[][] xoredHM;
@@ -20,7 +22,7 @@ public class CompressionFunction {
 
 	public int[] calculate(int[] padArray, int[] messageblock, int i2) {
 
-		this.blockNumber = i2;
+		CompressionFunction.blockNumber = i2;
 		this.him1 = prepareArray(padArray);
 		this.mi = prepareArray(messageblock);
 
@@ -42,19 +44,19 @@ public class CompressionFunction {
 		indexMap.put("E", 14);
 		indexMap.put("F", 15);
 
-		pRoundConstant = new int[8][8];
-		qRoundConstant = new int[8][8];
+		// pRoundConstant = new int[8][8];
+		// qRoundConstant = new int[8][8];
 
-		for (int i = 0; i < pRoundConstant[0].length; i++) {
-			pRoundConstant[0][i] = (int) (0xFF & (i * 16));
-		}
+		// for (int i = 0; i < pRoundConstant[0].length; i++) {
+		// pRoundConstant[0][i] = (int) (0xFF & (i * 16));
+		// }
 
-		for (int i = 0; i < qRoundConstant.length; i++) {
-			Arrays.fill(qRoundConstant[i], (int) (0xFF & 255));
-		}
+		// for (int i = 0; i < qRoundConstant.length; i++) {
+		// Arrays.fill(qRoundConstant[i], (int) (0xFF & 255));
+		// }
 
-		for (int i = 0; i < qRoundConstant[0].length; i++) {
-			qRoundConstant[7][i] = (int) (0xFF & (255 - (i * 16)));
+		for (int i = 0; i < QROUNDCONSTANT[0].length; i++) {
+			QROUNDCONSTANT[7][i] = (int) (0xFF & (255 - (i * 16)));
 		}
 
 		System.out.println("\nmi:\n");
@@ -87,15 +89,22 @@ public class CompressionFunction {
 		this.outputp = pPermutations(xoredHM);
 		this.outputq = qPermutations(mi);
 
-		return getBlockState(xoredHM, outputp, outputq);
+		return getBlockState(him1, outputp, outputq);
 	}
 
-	private int[] getBlockState(int[][] xoredHM2, int[][] outputp2, int[][] outputq2) {
+	private int[] getBlockState(int[][] him, int[][] outputp2, int[][] outputq2) {
 		int[][] xoredAll = new int[8][8];
 		for (int i = 0; i < xoredAll.length; i++) {
 			for (int j = 0; j < xoredAll[0].length; j++) {
-				xoredAll[i][j] = (int) (0xFF & (xoredHM2[i][j] ^ outputp2[i][j] ^ outputq2[i][j]));
+				xoredAll[i][j] = (int) (0xFF & (him[i][j] ^ outputp2[i][j] ^ outputq2[i][j]));
 			}
+		}
+		System.out.println("\npo XORze wszystkich w CompressionFunction:\n");
+		for (int k = 0; k < 8; k++) {
+			for (int l = 0; l < 8; l++) {
+				System.out.print(String.format("%02X ", xoredAll[k][l] & 0xFF) + " ");
+			}
+			System.out.println();
 		}
 		NewGui.map.put(blockNumber + " xoredAll", xoredAll);
 
@@ -129,17 +138,60 @@ public class CompressionFunction {
 		return tab;
 	}
 
-	public static int[][] mixBytes(int[][] tempTab) {
+	public static int[][] mixBytes(int[][] mtab) {
+
+		int[][] tempTab = new int[mtab.length][mtab[0].length];
+
+		for (int c = 0; c < 8; c++) {
+			tempTab[0][c] = (GMul(mtab[0][c], 2) ^ GMul(mtab[1][c], 2) ^ GMul(mtab[2][c], 3) ^ GMul(mtab[3][c], 4) ^ GMul(mtab[4][c], 5) ^ GMul(mtab[5][c], 3)
+					^ GMul(mtab[6][c], 5) ^ GMul(mtab[7][c], 7));
+			tempTab[1][c] = (GMul(mtab[0][c], 7) ^ GMul(mtab[1][c], 2) ^ GMul(mtab[2][c], 2) ^ GMul(mtab[3][c], 3) ^ GMul(mtab[4][c], 4) ^ GMul(mtab[5][c], 5)
+					^ GMul(mtab[6][c], 3) ^ GMul(mtab[7][c], 5));
+			tempTab[2][c] = (GMul(mtab[0][c], 5) ^ GMul(mtab[1][c], 7) ^ GMul(mtab[2][c], 2) ^ GMul(mtab[3][c], 2) ^ GMul(mtab[4][c], 3) ^ GMul(mtab[5][c], 4)
+					^ GMul(mtab[6][c], 5) ^ GMul(mtab[7][c], 3));
+			tempTab[3][c] = (GMul(mtab[0][c], 3) ^ GMul(mtab[1][c], 5) ^ GMul(mtab[2][c], 7) ^ GMul(mtab[3][c], 2) ^ GMul(mtab[4][c], 2) ^ GMul(mtab[5][c], 3)
+					^ GMul(mtab[6][c], 4) ^ GMul(mtab[7][c], 5));
+			tempTab[4][c] = (GMul(mtab[0][c], 5) ^ GMul(mtab[1][c], 3) ^ GMul(mtab[2][c], 5) ^ GMul(mtab[3][c], 7) ^ GMul(mtab[4][c], 2) ^ GMul(mtab[5][c], 2)
+					^ GMul(mtab[6][c], 3) ^ GMul(mtab[7][c], 4));
+			tempTab[5][c] = (GMul(mtab[0][c], 4) ^ GMul(mtab[1][c], 5) ^ GMul(mtab[2][c], 3) ^ GMul(mtab[3][c], 5) ^ GMul(mtab[4][c], 7) ^ GMul(mtab[5][c], 2)
+					^ GMul(mtab[6][c], 2) ^ GMul(mtab[7][c], 3));
+			tempTab[6][c] = (GMul(mtab[0][c], 3) ^ GMul(mtab[1][c], 4) ^ GMul(mtab[2][c], 5) ^ GMul(mtab[3][c], 3) ^ GMul(mtab[4][c], 5) ^ GMul(mtab[5][c], 7)
+					^ GMul(mtab[6][c], 2) ^ GMul(mtab[7][c], 2));
+			tempTab[7][c] = (GMul(mtab[0][c], 2) ^ GMul(mtab[1][c], 3) ^ GMul(mtab[2][c], 4) ^ GMul(mtab[3][c], 5) ^ GMul(mtab[4][c], 3) ^ GMul(mtab[5][c], 5)
+					^ GMul(mtab[6][c], 7) ^ GMul(mtab[7][c], 2));
+		}
 
 		return tempTab;
 	}
 
+	private static int GMul(int a, int b) {
+		int p = 0;
+		int counter;
+		int hi_bit_set;
+		for (counter = 0; counter < 8; counter++) {
+			if ((b & 1) != 0) {
+				p ^= a;
+			}
+			hi_bit_set = (a & 0x80);
+			a <<= 1;
+			if (hi_bit_set != 0) {
+				a ^= 0x1b; /* x^8 + x^4 + x^3 + x + 1 */
+			}
+			b >>= 1;
+		}
+		return p;
+	}
+
 	public static int[][] addRoundConstantP(int[][] tab, int r) {
 
-		int[][] tempPConstTab = pRoundConstant.clone();
+		int[][] tempPConstTab = new int[8][8];
+
+		for (int i = 0; i < tempPConstTab.length; i++)
+			for (int j = 0; j < tempPConstTab[i].length; j++)
+				tempPConstTab[i][j] = PROUNDCONSTANT[i][j];
 
 		for (int j = 0; j < tempPConstTab[0].length; j++) {
-			int con = pRoundConstant[0][j];
+			int con = PROUNDCONSTANT[0][j];
 			int xor = con ^ r;
 			tempPConstTab[0][j] = xor;
 		}
@@ -155,17 +207,21 @@ public class CompressionFunction {
 
 	public int[][] addRoundConstantQ(int[][] tab, int r) {
 
-		int[][] tempPConstTab = qRoundConstant.clone();
+		int[][] tempQConstTab = new int[8][8];
 
-		for (int j = 0; j < tempPConstTab[0].length; j++) {
-			int con = this.qRoundConstant[0][j];
+		for (int i = 0; i < tempQConstTab.length; i++)
+			for (int j = 0; j < tempQConstTab[i].length; j++)
+				tempQConstTab[i][j] = QROUNDCONSTANT[i][j];
+
+		for (int j = 0; j < tempQConstTab[7].length; j++) {
+			int con = QROUNDCONSTANT[7][j];
 			int xor = con ^ r;
-			tempPConstTab[0][j] = xor;
+			tempQConstTab[7][j] = xor;
 		}
 
 		for (int i = 0; i < tab.length; i++) {
 			for (int j = 0; j < tab[0].length; j++) {
-				tab[i][j] = (0xFF & (tempPConstTab[i][j] ^ tab[i][j]));
+				tab[i][j] = (0xFF & (tempQConstTab[i][j] ^ tab[i][j]));
 			}
 		}
 
@@ -209,9 +265,10 @@ public class CompressionFunction {
 
 	private int[][] qPermutations(int[][] mi) {
 		int[][] tempTab = new int[8][8];
+		tempTab = mi;
 		for (int i = 0; i < 10; i++) {
-			tempTab = addRoundConstantQ(mi, i);
-			System.out.println("\nQ po addRoundConstantQ:\n");
+			tempTab = addRoundConstantQ(tempTab, i);
+			System.out.println("\nt: " + i  + "\tQ po addRoundConstantQ:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -221,7 +278,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " Q addRoundConstant " + i, tempTab.clone());
 
 			tempTab = subBytes(tempTab);
-			System.out.println("\nQ po subBytes:\n");
+			System.out.println("\nt: " + i  + "\tQ po subBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -231,7 +288,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " Q subBytes " + i, tempTab.clone());
 
 			tempTab = shiftBytesQ(tempTab);
-			System.out.println("\nQ po shiftBytesQ:\n");
+			System.out.println("\nt: " + i  + "\tQ po shiftBytesQ:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -241,7 +298,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " Q shiftBytes " + i, tempTab.clone());
 
 			tempTab = mixBytes(tempTab);
-			System.out.println("\nQ po mixBytes:\n");
+			System.out.println("\nt: " + i  + "\tQ po mixBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -254,11 +311,12 @@ public class CompressionFunction {
 	}
 
 	public static int[][] pPermutations(int[][] xoredHM2) {
-
 		int[][] tempTab = new int[8][8];
+		tempTab = xoredHM2;
+
 		for (int i = 0; i < 10; i++) {
-			tempTab = addRoundConstantP(xoredHM2, 0);
-			System.out.println("\nP po addRoundConstantP:\n");
+			tempTab = addRoundConstantP(tempTab, i);
+			System.out.println("\nt: " + i  + "\tP po addRoundConstantP:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -268,7 +326,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " P addRoundConstantP " + i, tempTab.clone());
 
 			tempTab = subBytes(tempTab);
-			System.out.println("\nP po subBytes:\n");
+			System.out.println("\nt: " + i  + "\tP po subBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -278,7 +336,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " P subBytes " + i, tempTab.clone());
 
 			tempTab = shiftBytesP(tempTab);
-			System.out.println("\nP po shiftBytesP:\n");
+			System.out.println("\nt: " + i  + "\tP po shiftBytesP:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
@@ -288,7 +346,7 @@ public class CompressionFunction {
 			NewGui.map.put(blockNumber + " P shiftBytes " + i, tempTab.clone());
 
 			tempTab = mixBytes(tempTab);
-			System.out.println("\npo mixBytes:\n");
+			System.out.println("\nt: " + i  + "\tpo mixBytes:\n");
 			for (int k = 0; k < 8; k++) {
 				for (int l = 0; l < 8; l++) {
 					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");

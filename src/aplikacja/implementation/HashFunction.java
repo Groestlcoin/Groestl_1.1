@@ -51,6 +51,13 @@ public class HashFunction {
 	private String toByteString(int[] blockState) {
 
 		int[][] endState = CompressionFunction.prepareArray(blockState);
+		System.out.println("\npo XORze wszystkich w CompressionFunction:\n");
+		for (int k = 0; k < 8; k++) {
+			for (int l = 0; l < 8; l++) {
+				System.out.print(String.format("%02X ", endState[k][l] & 0xFF) + " ");
+			}
+			System.out.println();
+		}
 		endState = CompressionFunction.pPermutations(endState);
 		System.out.println("\ntoByteString, po pPermutations:\n");
 		for (int k = 0; k < 8; k++) {
