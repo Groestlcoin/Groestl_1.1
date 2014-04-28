@@ -1,5 +1,6 @@
 package aplikacja.implementation;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +67,8 @@ public class CompressionFunction {
 			}
 			System.out.println();
 		}
-		NewGui.map.put(i2 + " mi", mi.clone());
+		NewGui.stateList.add(new State(i2 + " mi", deepCopy(mi)));
+		// NewGui.map.put(i2 + " mi", deepCopy(mi));
 
 		System.out.println("\nhim:\n");
 		for (int k = 0; k < 8; k++) {
@@ -75,7 +77,8 @@ public class CompressionFunction {
 			}
 			System.out.println();
 		}
-		NewGui.map.put(i2 + " him", him1.clone());
+		NewGui.stateList.add(new State(i2 + " him", deepCopy(him1)));
+		// NewGui.map.put(i2 + " him", deepCopy(him1));
 
 		this.xoredHM = xorHM(this.him1, this.mi);
 		System.out.println("\npo XORHM:\n");
@@ -85,8 +88,9 @@ public class CompressionFunction {
 			}
 			System.out.println();
 		}
-		NewGui.map.put(i2 + " xorhm", xoredHM);
-		this.outputp = pPermutations(xoredHM);
+		NewGui.stateList.add(new State(i2 + " xorhm", deepCopy(xoredHM)));
+		// NewGui.map.put(i2 + " xorhm", deepCopy(xoredHM));
+		this.outputp = pPermutations(xoredHM, false);
 		this.outputq = qPermutations(mi);
 
 		return getBlockState(him1, outputp, outputq);
@@ -106,7 +110,8 @@ public class CompressionFunction {
 			}
 			System.out.println();
 		}
-		NewGui.map.put(blockNumber + " xoredAll", xoredAll);
+		NewGui.stateList.add(new State(blockNumber + " xoredAll", deepCopy(xoredAll)));
+		// NewGui.map.put(blockNumber + " xoredAll", deepCopy(xoredAll));
 
 		int[] xoredAll2 = new int[64];
 		for (int i = 0; i < xoredAll.length; i++) {
@@ -275,7 +280,9 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " Q addRoundConstant " + i, tempTab.clone());
+			NewGui.stateList.add(new State(blockNumber + " Q addRoundConstant " + i, deepCopy(tempTab)));
+			// NewGui.map.put(blockNumber + " Q addRoundConstant " + i,
+			// deepCopy(tempTab));
 
 			tempTab = subBytes(tempTab);
 			System.out.println("\nt: " + i + "\tQ po subBytes:\n");
@@ -285,7 +292,9 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " Q subBytes " + i, tempTab.clone());
+			NewGui.stateList.add(new State(blockNumber + " Q subBytes " + i, deepCopy(tempTab)));
+			// NewGui.map.put(blockNumber + " Q subBytes " + i,
+			// deepCopy(tempTab));
 
 			tempTab = shiftBytesQ(tempTab);
 			System.out.println("\nt: " + i + "\tQ po shiftBytesQ:\n");
@@ -295,7 +304,9 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " Q shiftBytes " + i, tempTab.clone());
+			NewGui.stateList.add(new State(blockNumber + " Q shiftBytes " + i, deepCopy(tempTab)));
+			// NewGui.map.put(blockNumber + " Q shiftBytes " + i,
+			// deepCopy(tempTab));
 
 			tempTab = mixBytes(tempTab);
 			System.out.println("\nt: " + i + "\tQ po mixBytes:\n");
@@ -305,12 +316,14 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " Q mixBytes " + i, tempTab.clone());
+			NewGui.stateList.add(new State(blockNumber + " Q mixBytes " + i, deepCopy(tempTab)));
+			// NewGui.map.put(blockNumber + " Q mixBytes " + i,
+			// deepCopy(tempTab));
 		}
-		return tempTab.clone();
+		return deepCopy(tempTab);
 	}
 
-	public static int[][] pPermutations(int[][] xoredHM2) {
+	public static int[][] pPermutations(int[][] xoredHM2, boolean outputTransf) {
 		int[][] tempTab = new int[8][8];
 		tempTab = xoredHM2;
 
@@ -323,7 +336,13 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " P addRoundConstantP " + i, tempTab.clone());
+			if (outputTransf) {
+				NewGui.stateList.add(new State("T: " + blockNumber + " P addRoundConstantP " + i, deepCopy(tempTab)));
+			} else {
+				NewGui.stateList.add(new State(blockNumber + " P addRoundConstantP " + i, deepCopy(tempTab)));
+			}
+			// NewGui.map.put(blockNumber + " P addRoundConstantP " + i,
+			// deepCopy(tempTab));
 
 			tempTab = subBytes(tempTab);
 			System.out.println("\nt: " + i + "\tP po subBytes:\n");
@@ -333,7 +352,13 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " P subBytes " + i, tempTab.clone());
+			if (outputTransf) {
+				NewGui.stateList.add(new State("T: " + blockNumber + " P subBytes " + i, deepCopy(tempTab)));
+			} else {
+				NewGui.stateList.add(new State(blockNumber + " P subBytes " + i, deepCopy(tempTab)));
+			}
+			// NewGui.map.put(blockNumber + " P subBytes " + i,
+			// deepCopy(tempTab));
 
 			tempTab = shiftBytesP(tempTab);
 			System.out.println("\nt: " + i + "\tP po shiftBytesP:\n");
@@ -343,7 +368,13 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " P shiftBytes " + i, tempTab.clone());
+			if (outputTransf) {
+				NewGui.stateList.add(new State("T: " + blockNumber + " P shiftBytes " + i, deepCopy(tempTab)));
+			} else {
+				NewGui.stateList.add(new State(blockNumber + " P shiftBytes " + i, deepCopy(tempTab)));
+			}
+			// NewGui.map.put(blockNumber + " P shiftBytes " + i,
+			// deepCopy(tempTab));
 
 			tempTab = mixBytes(tempTab);
 			System.out.println("\nt: " + i + "\tpo mixBytes:\n");
@@ -353,9 +384,15 @@ public class CompressionFunction {
 				}
 				System.out.println();
 			}
-			NewGui.map.put(blockNumber + " P mixBytes " + i, tempTab.clone());
+			if (outputTransf) {
+				NewGui.stateList.add(new State("T: " + blockNumber + " P mixBytes " + i, deepCopy(tempTab)));
+			} else {
+				NewGui.stateList.add(new State(blockNumber + " P mixBytes " + i, deepCopy(tempTab)));
+			}
+			// NewGui.map.put(blockNumber + " P mixBytes " + i,
+			// deepCopy(tempTab));
 		}
-		return tempTab.clone();
+		return deepCopy(tempTab);
 	}
 
 	private int[][] xorHM(int[][] him12, int[][] mi2) {
@@ -376,6 +413,18 @@ public class CompressionFunction {
 		}
 
 		return preparedArray;
+	}
+
+	public static int[][] deepCopy(int[][] original) {
+		if (original == null) {
+			return null;
+		}
+
+		final int[][] result = new int[original.length][];
+		for (int i = 0; i < original.length; i++) {
+			result[i] = Arrays.copyOf(original[i], original[i].length);
+		}
+		return result;
 	}
 
 }

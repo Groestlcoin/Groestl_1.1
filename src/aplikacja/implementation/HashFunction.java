@@ -1,19 +1,13 @@
 package aplikacja.implementation;
 
-
 public class HashFunction {
 
 	private int numberOfBlocks;
 	private int[][] tabOfMessageBlocks;
 	private int[] inputArray;
 
-	public String calculateHash(String inputHEX) {
-		byte[] hexbyteArray = null;
-		try {
-			hexbyteArray = ToArray.toByteArray(inputHEX);
-		} catch (Exception e) {
-			System.out.println("Podaj parzyst¹ liczbê znaków");
-		}
+	public String calculateHash(byte[] inputHEX) {
+		byte[] hexbyteArray = inputHEX;
 		inputArray = new int[hexbyteArray.length];
 		for (int i = 0; i < hexbyteArray.length; i++) {
 			inputArray[i] = hexbyteArray[i];
@@ -36,6 +30,7 @@ public class HashFunction {
 
 		MessageBlock mb = new MessageBlock();
 		int[] previousState = null;
+		System.out.println("=======================================tabOfMessageBlocks.length: " + tabOfMessageBlocks.length);
 		for (int i = 0; i < tabOfMessageBlocks.length; i++) {
 			if (i == 0) {
 				previousState = mb.calculateMessageBlock(Utility.representation256, tabOfMessageBlocks[i], i);
@@ -58,7 +53,7 @@ public class HashFunction {
 			}
 			System.out.println();
 		}
-		endState = CompressionFunction.pPermutations(endState);
+		endState = CompressionFunction.pPermutations(endState, true);
 		System.out.println("\ntoByteString, po pPermutations:\n");
 		for (int k = 0; k < 8; k++) {
 			for (int l = 0; l < 8; l++) {
