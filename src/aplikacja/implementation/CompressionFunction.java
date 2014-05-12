@@ -19,7 +19,7 @@ public class CompressionFunction {
 	private static Map<String, Integer> indexMap;
 	private int[][] outputp;
 	private int[][] outputq;
-	private static int blockNumber;
+	public static int blockNumber;
 
 	public int[] calculate(int[] padArray, int[] messageblock, int i2) {
 
@@ -45,51 +45,15 @@ public class CompressionFunction {
 		indexMap.put("E", 14);
 		indexMap.put("F", 15);
 
-		// pRoundConstant = new int[8][8];
-		// qRoundConstant = new int[8][8];
-
-		// for (int i = 0; i < pRoundConstant[0].length; i++) {
-		// pRoundConstant[0][i] = (int) (0xFF & (i * 16));
-		// }
-
-		// for (int i = 0; i < qRoundConstant.length; i++) {
-		// Arrays.fill(qRoundConstant[i], (int) (0xFF & 255));
-		// }
-
 		for (int i = 0; i < QROUNDCONSTANT[0].length; i++) {
 			QROUNDCONSTANT[7][i] = (int) (0xFF & (255 - (i * 16)));
 		}
 
-		System.out.println("\nmi:\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", mi[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
-		NewGui.stateList.add(new State(i2 + " mi", deepCopy(mi)));
-		// NewGui.map.put(i2 + " mi", deepCopy(mi));
-
-		System.out.println("\nhim:\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", him1[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
-		NewGui.stateList.add(new State(i2 + " him", deepCopy(him1)));
-		// NewGui.map.put(i2 + " him", deepCopy(him1));
+		NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "X#" + "mi" + "#RND:" + "-1", deepCopy(mi)));
+		NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "X#" + "hm" + "#RND:" + "-1", deepCopy(him1)));
 
 		this.xoredHM = xorHM(this.him1, this.mi);
-		System.out.println("\npo XORHM:\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", xoredHM[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
-		NewGui.stateList.add(new State(i2 + " xorhm", deepCopy(xoredHM)));
-		// NewGui.map.put(i2 + " xorhm", deepCopy(xoredHM));
+		NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "X#" + "xorHM" + "#RND:" + "-1", deepCopy(xoredHM)));
 		this.outputp = pPermutations(xoredHM, false);
 		this.outputq = qPermutations(mi);
 
@@ -103,15 +67,7 @@ public class CompressionFunction {
 				xoredAll[i][j] = (int) (0xFF & (him[i][j] ^ outputp2[i][j] ^ outputq2[i][j]));
 			}
 		}
-		System.out.println("\npo XORze wszystkich w CompressionFunction:\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", xoredAll[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
-		NewGui.stateList.add(new State(blockNumber + " xoredAll", deepCopy(xoredAll)));
-		// NewGui.map.put(blockNumber + " xoredAll", deepCopy(xoredAll));
+		NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "S#" + "xoredAll" + "#RND:" + "-1", deepCopy(xoredAll)));
 
 		int[] xoredAll2 = new int[64];
 		for (int i = 0; i < xoredAll.length; i++) {
@@ -124,8 +80,6 @@ public class CompressionFunction {
 	}
 
 	public static int[][] subBytes(int[][] tab) {
-
-		// System.out.println(Integer.toHexString(Utility.sBox[5][3] & 0xFF));
 
 		for (int i = 0; i < tab.length; i++) {
 			for (int j = 0; j < tab[0].length; j++) {
@@ -189,6 +143,7 @@ public class CompressionFunction {
 
 	public static int[][] addRoundConstantP(int[][] tab, int r) {
 
+		
 		int[][] tempPConstTab = new int[8][8];
 
 		for (int i = 0; i < tempPConstTab.length; i++)
@@ -200,6 +155,8 @@ public class CompressionFunction {
 			int xor = con ^ r;
 			tempPConstTab[0][j] = xor;
 		}
+		
+		NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "roundConst" + "#RND:" + r, deepCopy(tempPConstTab)));
 
 		for (int i = 0; i < tab.length; i++) {
 			for (int j = 0; j < tab[0].length; j++) {
@@ -223,6 +180,8 @@ public class CompressionFunction {
 			int xor = con ^ r;
 			tempQConstTab[7][j] = xor;
 		}
+		
+		NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "Q#" + "roundConst" + "#RND:" + r, deepCopy(tempQConstTab)));
 
 		for (int i = 0; i < tab.length; i++) {
 			for (int j = 0; j < tab[0].length; j++) {
@@ -271,54 +230,21 @@ public class CompressionFunction {
 	private int[][] qPermutations(int[][] mi) {
 		int[][] tempTab = new int[8][8];
 		tempTab = mi;
+		
 		for (int i = 0; i < 10; i++) {
+			NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "Q#" + "Input" + "#RND:" + i, deepCopy(tempTab)));
+			
 			tempTab = addRoundConstantQ(tempTab, i);
-			System.out.println("\nt: " + i + "\tQ po addRoundConstantQ:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
-			NewGui.stateList.add(new State(blockNumber + " Q addRoundConstant " + i, deepCopy(tempTab)));
-			// NewGui.map.put(blockNumber + " Q addRoundConstant " + i,
-			// deepCopy(tempTab));
+			NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "Q#" + "addRoundConstant" + "#RND:" + i, deepCopy(tempTab)));
 
 			tempTab = subBytes(tempTab);
-			System.out.println("\nt: " + i + "\tQ po subBytes:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
-			NewGui.stateList.add(new State(blockNumber + " Q subBytes " + i, deepCopy(tempTab)));
-			// NewGui.map.put(blockNumber + " Q subBytes " + i,
-			// deepCopy(tempTab));
+			NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "Q#" + "subBytes" + "#RND:" + i, deepCopy(tempTab)));
 
 			tempTab = shiftBytesQ(tempTab);
-			System.out.println("\nt: " + i + "\tQ po shiftBytesQ:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
-			NewGui.stateList.add(new State(blockNumber + " Q shiftBytes " + i, deepCopy(tempTab)));
-			// NewGui.map.put(blockNumber + " Q shiftBytes " + i,
-			// deepCopy(tempTab));
+			NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "Q#" + "shiftBytes" + "#RND:" + i, deepCopy(tempTab)));
 
 			tempTab = mixBytes(tempTab);
-			System.out.println("\nt: " + i + "\tQ po mixBytes:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
-			NewGui.stateList.add(new State(blockNumber + " Q mixBytes " + i, deepCopy(tempTab)));
-			// NewGui.map.put(blockNumber + " Q mixBytes " + i,
-			// deepCopy(tempTab));
+			NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "Q#" + "mixBytes" + "#RND:" + i, deepCopy(tempTab)));
 		}
 		return deepCopy(tempTab);
 	}
@@ -326,71 +252,37 @@ public class CompressionFunction {
 	public static int[][] pPermutations(int[][] xoredHM2, boolean outputTransf) {
 		int[][] tempTab = new int[8][8];
 		tempTab = xoredHM2;
-
+		
 		for (int i = 0; i < 10; i++) {
+			NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "Input" + "#RND:" + i, deepCopy(tempTab)));
+			
 			tempTab = addRoundConstantP(tempTab, i);
-			System.out.println("\nt: " + i + "\tP po addRoundConstantP:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
 			if (outputTransf) {
-				NewGui.stateList.add(new State("T: " + blockNumber + " P addRoundConstantP " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "addRoundConstant" + "#RND:" + i, deepCopy(tempTab)));
 			} else {
-				NewGui.stateList.add(new State(blockNumber + " P addRoundConstantP " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "addRoundConstant" + "#RND:" + i, deepCopy(tempTab)));
 			}
-			// NewGui.map.put(blockNumber + " P addRoundConstantP " + i,
-			// deepCopy(tempTab));
 
 			tempTab = subBytes(tempTab);
-			System.out.println("\nt: " + i + "\tP po subBytes:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
 			if (outputTransf) {
-				NewGui.stateList.add(new State("T: " + blockNumber + " P subBytes " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "subBytes" + "#RND:" + i, deepCopy(tempTab)));
 			} else {
-				NewGui.stateList.add(new State(blockNumber + " P subBytes " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "subBytes" + "#RND:" + i, deepCopy(tempTab)));
 			}
-			// NewGui.map.put(blockNumber + " P subBytes " + i,
-			// deepCopy(tempTab));
 
 			tempTab = shiftBytesP(tempTab);
-			System.out.println("\nt: " + i + "\tP po shiftBytesP:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
 			if (outputTransf) {
-				NewGui.stateList.add(new State("T: " + blockNumber + " P shiftBytes " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "shiftBytes" + "#RND:" + i, deepCopy(tempTab)));
 			} else {
-				NewGui.stateList.add(new State(blockNumber + " P shiftBytes " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "shiftBytes" + "#RND:" + i, deepCopy(tempTab)));
 			}
-			// NewGui.map.put(blockNumber + " P shiftBytes " + i,
-			// deepCopy(tempTab));
 
 			tempTab = mixBytes(tempTab);
-			System.out.println("\nt: " + i + "\tpo mixBytes:\n");
-			for (int k = 0; k < 8; k++) {
-				for (int l = 0; l < 8; l++) {
-					System.out.print(String.format("%02X ", tempTab[k][l] & 0xFF) + " ");
-				}
-				System.out.println();
-			}
 			if (outputTransf) {
-				NewGui.stateList.add(new State("T: " + blockNumber + " P mixBytes " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "mixBytes" + "#RND:" + i, deepCopy(tempTab)));
 			} else {
-				NewGui.stateList.add(new State(blockNumber + " P mixBytes " + i, deepCopy(tempTab)));
+				NewGui.stateList.add(new State("BLCK:" + blockNumber + "#" + "P#" + "mixBytes" + "#RND:" + i, deepCopy(tempTab)));
 			}
-			// NewGui.map.put(blockNumber + " P mixBytes " + i,
-			// deepCopy(tempTab));
 		}
 		return deepCopy(tempTab);
 	}

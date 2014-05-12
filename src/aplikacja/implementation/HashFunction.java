@@ -45,6 +45,8 @@ public class HashFunction {
 
 	private String toByteString(int[] blockState) {
 
+		CompressionFunction.blockNumber++;
+
 		int[][] endState = CompressionFunction.prepareArray(blockState);
 		System.out.println("\nHashFunction.toByteString()\n");
 		for (int k = 0; k < 8; k++) {
