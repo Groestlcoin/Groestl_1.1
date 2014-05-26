@@ -8,14 +8,16 @@ import aplikacja.gui.NewGui;
 
 public class CompressionFunction {
 
+	//stala rundowa wykorzystywana przy transformacji P
 	private final static int[][] PROUNDCONSTANT = { { 0, 16, 32, 48, 64, 80, 96, 112 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 },
 			{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 } };
+	//stala rundowa wykorzystywana przy transformacji Q
 	private final static int[][] QROUNDCONSTANT = { { 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 },
 			{ 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 },
 			{ 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 255, 255, 255, 255, 255, 255, 255 }, { 255, 239, 223, 207, 191, 175, 159, 143 } };
-	private int[][] him1;
-	private int[][] mi;
-	private int[][] xoredHM;
+	private int[][] him1;		// h[i] XOR m1
+	private int[][] mi;			// m[i] blok[i]
+	private int[][] xoredHM;	
 	private static Map<String, Integer> indexMap;
 	private int[][] outputp;
 	private int[][] outputq;
@@ -45,6 +47,8 @@ public class CompressionFunction {
 		indexMap.put("E", 14);
 		indexMap.put("F", 15);
 
+		
+		// pierwsza transformacja - Dodanie sta³ej rundowej
 		for (int i = 0; i < QROUNDCONSTANT[0].length; i++) {
 			QROUNDCONSTANT[7][i] = (int) (0xFF & (255 - (i * 16)));
 		}
@@ -125,9 +129,8 @@ public class CompressionFunction {
 
 	private static int GMul(int a, int b) {
 		int p = 0;
-		int counter;
 		int hi_bit_set;
-		for (counter = 0; counter < 8; counter++) {
+		for (int i = 0; i < 8; i++) {
 			if ((b & 1) != 0) {
 				p ^= a;
 			}

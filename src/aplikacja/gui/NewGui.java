@@ -36,21 +36,23 @@ public class NewGui extends JFrame {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;	
 
-	private JTextField textField_Input;
+	private JTextField textField_Input;	
 
+	
+	//wybor wejscia
 	private JRadioButton rdbtnHex;
 	private JRadioButton rdbtnText;
+	private JRadioButton rdbtnPlik;
 
 	private JButton btnOblicz;
 
 	private ButtonGroup radioButtonGroup;
 	private JTextArea textAreaOutput;
-	// public static IdentityHashMap<String, int[][]> map = new
-	// IdentityHashMap<>();
+
 	public static List<State> stateList = new ArrayList<State>();
-	private JRadioButton rdbtnPlik;
+
 
 	private byte[] textBytes;
 	private JLabel labelPath;
@@ -73,16 +75,6 @@ public class NewGui extends JFrame {
 
 	private boolean calculationFocus;
 
-	// private ComboBoxModel<String> myDefaultComboBoxModel = new
-	// DefaultComboBoxModel<String>(new String[] { "mi", "hm", "xorHm",
-	// "runda 1", "runda 2",
-	// "runda 3", "runda 4", "runda 5", "runda 6", "runda 7", "runda 8",
-	// "runda 9", "runda 10", "xorAll" });
-	// private ComboBoxModel<String> myOutputComboBoxModel = new
-	// DefaultComboBoxModel<String>(new String[] { "runda 1", "runda 2",
-	// "runda 3", "runda 4",
-	// "runda 5", "runda 6", "runda 7", "runda 8", "runda 9", "runda 10",
-	// "xorAll" });
 
 	public NewGui() {
 
@@ -497,7 +489,7 @@ public class NewGui extends JFrame {
 
 	public void doCalculate(byte[] bytes) {
 		HashFunction hf = new HashFunction();
-		textAreaOutput.setText(hf.calculateHash(bytes));
+		textAreaOutput.setText(hf.calculateHash(bytes));			//obliczanie skrotu
 		calculationFocus = true;
 		for (int i = 0; i <= CompressionFunction.blockNumber - 1; i++) {
 			comboBoxBlockNumber.addItem("blok nr: " + i);

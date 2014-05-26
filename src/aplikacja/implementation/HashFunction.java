@@ -13,12 +13,13 @@ public class HashFunction {
 			inputArray[i] = hexbyteArray[i];
 		}
 
-		byte[] padA = pad(hexbyteArray);
+		byte[] padA = pad(hexbyteArray);				//wywolanie funkcji pad, ktora uzupelnia dane do wielokrotnosci 512bitow
 		int[] padArray = new int[padA.length];
 		for (int i = 0; i < padArray.length; i++) {
 			padArray[i] = padA[i];
 		}
 
+		//dzielenie na 512bitowe bloki
 		this.tabOfMessageBlocks = new int[numberOfBlocks][64];
 		for (int i = 0, j = 0; i < padArray.length; i++, j++) {
 			if (j == 64) {
@@ -28,6 +29,7 @@ public class HashFunction {
 			this.tabOfMessageBlocks[blockNumber][j] = padArray[i];
 		}
 
+		//calculateMessageBlock - dzia³ania na bloku
 		MessageBlock mb = new MessageBlock();
 		int[] previousState = null;
 		System.out.println("=======================================tabOfMessageBlocks.length: " + tabOfMessageBlocks.length);
@@ -43,39 +45,23 @@ public class HashFunction {
 
 	}
 
+	
 	private String toByteString(int[] blockState) {
 
 		CompressionFunction.blockNumber++;
 
 		int[][] endState = CompressionFunction.prepareArray(blockState);
-		System.out.println("\nHashFunction.toByteString()\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", endState[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
+
+		//output transformation
 		endState = CompressionFunction.pPermutations(endState, true);
-		System.out.println("\ntoByteString, po pPermutations:\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", endState[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
+
 		int[][] inputState = CompressionFunction.prepareArray(blockState);
 		for (int i = 0; i < endState.length; i++) {
 			for (int j = 0; j < endState[0].length; j++) {
 				endState[i][j] = endState[i][j] ^ inputState[i][j];
 			}
 		}
-		System.out.println("\ntoByteString, po xorze:\n");
-		for (int k = 0; k < 8; k++) {
-			for (int l = 0; l < 8; l++) {
-				System.out.print(String.format("%02X ", endState[k][l] & 0xFF) + " ");
-			}
-			System.out.println();
-		}
+
 		StringBuilder sb = new StringBuilder();
 		for (int i = 4; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -89,13 +75,13 @@ public class HashFunction {
 	private byte[] pad(byte[] hexbyteArray) {
 
 		Pad pad = new Pad(hexbyteArray);
-		pad.append1Bit();
-		pad.calculateW();
+		pad.append1Bit();							//dodanie 1 bitu "1"
+		pad.calculateW();							
 		pad.calculateP();
-		pad.add64bitRepresentationOfP();
+		pad.add64bitRepresentationOfP();			//dodanie 64bitowej reprezentacji z liczby p - która jest liczb¹ bloków
 
 		this.numberOfBlocks = pad.getP();
-		return pad.getPaddedArrayOfBytes();
+		return pad.getPaddedArrayOfBytes();			// zwraca uzupe³nion¹ tablicê zawieraj¹c¹ wielokrotnoœæ 512 bitów
 	}
 
 }
